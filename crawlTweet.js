@@ -1,16 +1,18 @@
 const Tweet = require('./models/Tweet');
 const {searchTweet} = require('./helper');
+const {EXCEPTION_LENGTH} = require('./constant');
 
 const API_KEY = "AAAAAAAAAAAAAAAAAAAAABopbAEAAAAABjKNpF1Z6Q%2FY60kB7mGf2LkGulM%3DBsIva0OchIY5Q3Ip9VuBbT6B3Otbs9SkswbKWZ90S3xkpVrtDW";
 // const API_KEY = "AAAAAAAAAAAAAAAAAAAAAORkbgEAAAAAAcQTpVTL1JW5kQsqXVLrghj0q84%3DhGKngmKtw03vI5expf1O15qibaESFefHHGah34mRngrVTzMwIm"
 const QUERY = "robotic%20OR%20%22machine%20learning%22%20OR%20%22artificial%20intelligence%22%20OR%20%22ai%22%20lang%3Aen";
 
 
+
 const handleSearchTweet = async () => {
     let NEXT_TOKEN = "";
     let INDEX_DOCUMENT = 0;
-    // let NEXT_TOKEN = "b26v89c19zqg8o3fpds84irxituj7zurauoxn4e4xqoot";
-    // let INDEX_DOCUMENT = 19380580;
+    // let NEXT_TOKEN = "b26v89c19zqg8o3fpdm6w000fhzmec876n7uyc7aomut9";
+    // let INDEX_DOCUMENT = 25350295;
 
     let tokenInfo = await getNextToken();
 
@@ -72,7 +74,7 @@ const handleSearchTweet = async () => {
 }
 
 const saveTweet = async (data) => {
-    for(let i = 0; i < 3; i += 1) {
+    for(let i = 0; i < EXCEPTION_LENGTH; i += 1) {
         try {
             let res = await Tweet.create(data);
             console.log("SAVE LIST TWEET SUCCESSFUL SIZE: ", res?.length);
@@ -92,14 +94,14 @@ const saveTweet = async (data) => {
             }
             
             console.log("===>>>Replay ", i, " times");
-            if(i === 2) return {message: "FAILED SAVE LIST TWEET"};
+            if(i === EXCEPTION_LENGTH-1) return {message: "FAILED SAVE LIST TWEET"};
         }
         await new Promise((resolve, _) => setTimeout(resolve, 1000));
     }
 }
 
 const getNextToken = async () => {
-    for (let i = 0; i < 3; i += 1) {
+    for (let i = 0; i < EXCEPTION_LENGTH; i += 1) {
         try {
             let result = await Tweet.findOne({}, ["next_token", "index", "key_words", "tweet_id"], { sort: {"_id": -1}})
             
@@ -119,7 +121,7 @@ const getNextToken = async () => {
             console.log("[DATABASE]===================> ERROR IN GET NEXTTOKEN", err);
             console.log("===>>>Replay ", i, " times");
 
-            if(i === 2) return "FAILED GET NEXTTOKEN";
+            if(i === EXCEPTION_LENGTH-1) return "FAILED GET NEXTTOKEN";
         }
         await new Promise((resolve, _) => setTimeout(resolve, 1000));
     }
